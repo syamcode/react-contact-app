@@ -1,10 +1,11 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Login from './components/Login';
+import { Login, Contacts } from './components';
 
 function App() {
   return (
     <div>
+      <Route exact path='/' component={Contacts} />
       <Route exact path='/login' component={Login} />
     </div>
   );
