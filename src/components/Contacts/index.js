@@ -3,7 +3,8 @@ import { Form, Col, Button, Container, Row, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Column, Table, AutoSizer } from 'react-virtualized';
 import { trackPromise } from 'react-promise-tracker';
-import LoadingIndicator from './LoadingIndicator.js';
+import LoadingIndicator from './LoadingIndicator';
+import { fetchContacts } from '../../api/Contacts';
 import 'react-virtualized/styles.css';
 import './styles.css';
 
@@ -29,8 +30,7 @@ class Contacts extends Component {
 
   componentDidMount() {
     trackPromise(
-      fetch('http://165.22.60.22/api/v1/contacts')
-      .then((res) => res.json())
+      fetchContacts()
       .then((data) => {
         this.setState({ contacts: data.data })
       })
