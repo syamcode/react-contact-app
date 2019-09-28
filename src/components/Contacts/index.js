@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Form, Col, Button, Container, Row, Navbar } from 'react-bootstrap';
+import { Form, Col, Button, Container, Row, Navbar, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Column, Table, AutoSizer } from 'react-virtualized';
 import { trackPromise } from 'react-promise-tracker';
 import LoadingIndicator from './LoadingIndicator';
-import { fetchContacts } from '../../api/Contacts';
+import { faEnvelope, faBuilding, faGlobe, faDollarSign } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { fetchContacts, fetchContact } from '../../api/Contacts';
 import 'react-virtualized/styles.css';
 import './styles.css';
 
@@ -13,7 +15,8 @@ class Contacts extends Component {
     super();
 
     this.state = {
-      contacts: []
+      contacts: [],
+      detailData: null
     }
   }
 
@@ -27,6 +30,16 @@ class Contacts extends Component {
     event.preventDefault();
 
   }
+
+  handleDetail = ({index}) => {
+   trackPromise(
+     fetchContact(this.state.contacts[index].id)
+     .then((data) => {
+       this.setState({ detailData: data.data });
+     })
+     .catch(console.log)
+   );
+ }
 
   componentDidMount() {
     trackPromise(
@@ -82,12 +95,12 @@ class Contacts extends Component {
             </Form>
           </div>
           <Row>
-            <Col>
+            <Col xs={this.state.detailData==null?12:8}>
               <AutoSizer disableHeight>
               {({width}) => (
                 <Table
                   rowClassName={({index}) => index!==-1?"contact-row contact-row-pointer":"contact-row"}
-                  onRowClick={this.viewDetail}
+                  onRowClick={this.handleDetail}
                   width={width}
                   height={450}
                   noRowsRenderer={() => <LoadingIndicator />}
@@ -100,7 +113,7 @@ class Contacts extends Component {
                     return data;
                   }}>
                   <Column
-                    width={60}
+                    width={80}
                     cellDataGetter={({ rowData }) => rowData.index+1}
                     label='#'
                     dataKey='index'/>
@@ -121,6 +134,24 @@ class Contacts extends Component {
               )}
             </AutoSizer>
             </Col>
+            { this.state.detailData!=null &&
+            <Col xs={4}>
+              <Card>
+                <Card.Header as="h5">Details</Card.Header>
+                <Card.Body>
+                  <Card.Title>{this.state.detailData.name}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
+                  <p><FontAwesomeIcon icon={faEnvelope}/> <a href={"mailto:"+this.state.detailData.email}>{this.state.detailData.email}</a></p>
+                  <hr/>
+                  <h6>Company</h6>
+                  <p><FontAwesomeIcon icon={faBuilding}/> {this.state.detailData.company.name}</p>
+                  <p><FontAwesomeIcon icon={faGlobe}/> {this.state.detailData.company.country}</p>
+                  <p><FontAwesomeIcon icon={faDollarSign}/> {this.state.detailData.company.revenue}</p>
+                  <Button onClick={() => {this.setState({detailData: null})}}>Close</Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          }
           </Row>
         </Container>
       </React.Fragment>

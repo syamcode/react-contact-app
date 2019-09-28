@@ -6,3 +6,10 @@ export const fetchContacts = () => {
     .then((res) => res.json())
   );
 }
+
+export const fetchContact = id => {
+  return(
+    fetch(url+'/'+id)
+    .then((res) => res.json())
+  );
+}
