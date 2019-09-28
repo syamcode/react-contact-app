@@ -6,7 +6,12 @@ import { trackPromise } from 'react-promise-tracker';
 import LoadingIndicator from './LoadingIndicator';
 import { faEnvelope, faBuilding, faGlobe, faDollarSign } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { fetchContacts, fetchContact } from '../../api/Contacts';
+import {
+  fetchContacts,
+  fetchContact,
+  fetchFilterByName,
+  fetchFilterByCompany,
+  fetchFilterByRevenue } from '../../api/Contacts';
 import 'react-virtualized/styles.css';
 import './styles.css';
 
@@ -16,7 +21,9 @@ class Contacts extends Component {
 
     this.state = {
       contacts: [],
-      detailData: null
+      detailData: null,
+      search: '',
+      filterBy: 'name'
     }
   }
 
@@ -28,7 +35,26 @@ class Contacts extends Component {
 
   handleSubmit = event => {
     event.preventDefault();
-
+    let f;
+    switch(this.state.filterBy){
+      case 'name': f = fetchFilterByName(this.state.search);break;
+      case 'companyID': f = fetchFilterByCompany(this.state.search);break;
+      case 'revenue': f = fetchFilterByRevenue(this.state.search);break;
+      default: break;
+    }
+    if(this.state.search==='')
+      f = fetchContacts();
+    trackPromise(
+      f
+      .then((data) => {
+        let dt = [];
+        if(data.data!=null){
+          dt = data.data
+        }
+        this.setState({ contacts: dt });
+      })
+      .catch(console.log)
+    );
   }
 
   handleDetail = ({index}) => {
@@ -55,7 +81,7 @@ class Contacts extends Component {
     return(
       <React.Fragment>
         <Navbar bg="dark" variant="dark">
-            <Navbar.Brand href="#home">Contacts</Navbar.Brand>
+            <Navbar.Brand href="#">Contacts</Navbar.Brand>
             <Navbar.Toggle />
             <Navbar.Collapse className="justify-content-end">
               <Navbar.Text>
@@ -134,7 +160,7 @@ class Contacts extends Component {
               )}
             </AutoSizer>
             </Col>
-            { this.state.detailData!=null &&
+            { this.state.detailData!==null &&
             <Col xs={4}>
               <Card>
                 <Card.Header as="h5">Details</Card.Header>

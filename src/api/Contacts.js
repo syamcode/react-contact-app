@@ -13,3 +13,24 @@ export const fetchContact = id => {
     .then((res) => res.json())
   );
 }
+
+export const fetchFilterByName = name => {
+  return(
+    fetch(url+'?name='+name)
+    .then((res) => res.json())
+  );
+}
+
+export const fetchFilterByRevenue = revenue => {
+  return(
+    fetch(url+'?revenue_gte='+revenue)
+    .then((res) => res.json())
+  );
+}
+
+export const fetchFilterByCompany = id => {
+  return(
+    fetch(url+'?company_id='+id)
+    .then((res) => res.json())
+  );
+}
